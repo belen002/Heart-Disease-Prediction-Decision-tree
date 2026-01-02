@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HeartHealth AI</title>
+    <style>
+        :root { --med-blue: #0056b3; --light-blue: #eef4fb; }
+        body { font-family: sans-serif; background: var(--light-blue); display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        label { font-size: 14px; font-weight: bold; color: #555; }
+        select, input { width: 100%; padding: 12px; margin: 5px 0 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 18px; height: 45px; }
+        button { width: 100%; padding: 12px; background: var(--med-blue); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        #result { margin-top: 15px; padding: 15px; border-radius: 5px; text-align: center; font-weight: bold; display: none; }
+        option {font-size: 18px;}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2 style="color: var(--med-blue); text-align: center;">Heart Disease Predictor</h2>
+        <form id="pForm">
+            <div class="grid">
+                <div><label>Age</label><input type="number" id="age" value="55"></div>
+                <div><label>Sex</label><select id="sex"><option value="1">Male</option><option value="0">Female</option></select></div>
+                <div><label>Chest Pain</label>
+                    <select id="cp">
+                        <option value="typical angina">Typical Angina</option>
+                        <option value="atypical angina">Atypical Angina</option>
+                        <option value="non-anginal">Non-Anginal</option>
+                        <option value="asymptomatic">Asymptomatic</option>
+                    </select>
+                </div>
+                <div><label>Resting BP</label><input type="number" id="trestbps" value="130"></div>
+                <div><label>Cholesterol</label><input type="number" id="chol" value="250"></div>
+                <div><label>Max Heart Rate</label><input type="number" id="thalch" value="140"></div>
+                <div><label>ST Depression</label><input type="number" step="0.1" id="oldpeak" value="1.5"></div>
+                <div><label>Vessels (0-3)</label><input type="number" id="ca" value="1"></div>
+                <div><label>Exercise Induced Pain</label><select id="exang"><option value="1">Yes</option><option value="0">No</option></select></div>
+                <div><label>Thal Status</label>
+                    <select id="thal">
+                        <option value="normal">Normal</option>
+                        <option value="fixed defect">Fixed Defect</option>
+                        <option value="reversable defect">Reversable Defect</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit">Get Prediction</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('pForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                age: parseFloat(document.getElementById('age').value),
+                sex: parseInt(document.getElementById('sex').value),
+                cp: document.getElementById('cp').value,
+                trestbps: parseFloat(document.getElementById('trestbps').value),
+                chol: parseFloat(document.getElementById('chol').value),
+                thalch: parseFloat(document.getElementById('thalch').value),
+                oldpeak: parseFloat(document.getElementById('oldpeak').value),
+                ca: parseFloat(document.getElementById('ca').value),
+                exang: parseInt(document.getElementById('exang').value),
+                thal: document.getElementById('thal').value,
+                restecg: 'normal', slope: 'flat', fbs: 0 // Simplifications
+            };
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            const res = await response.json();
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerText = res.prediction;
+            resultDiv.style.backgroundColor = res.color + '22';
+            resultDiv.style.color = res.color;
+        };
+        
+    </script>
+</body>
+</html>
